@@ -1,0 +1,13 @@
+[Unit]
+Description=ss-manager service with autoreload
+Documentation=man:ss-manager
+After=network.target
+
+[Service]
+Type=forking
+LimitNOFILE=32768
+ExecStart=/root/mync.py
+
+[Install]
+WantedBy=multi-user.target
+
