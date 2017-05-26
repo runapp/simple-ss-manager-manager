@@ -6,8 +6,8 @@ Targeting for auto startup ss-manager as well as reloading all configurations in
 ### Usage
 
 1. Place the `mync.py` file anywhere you like
-2. Change the path of `mync.py` in `ss-manager.service`
-3. Copy `ss-manager.service` to `/usr/lib/systemd/system`
-4. Don't forget to run `systemctl enable`!
+2. `chmod +x mync.py`
+3. Run `./mync.py install`
+4. Don't forget to run `systemctl enable ss-manager`
 5. Enjoy!
 
