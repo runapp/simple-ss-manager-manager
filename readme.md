@@ -3,11 +3,22 @@ Simple wrapper for ss-manager; auto reload configure; a tiny handmake managing s
 
 Targeting for auto startup ss-manager as well as reloading all configurations in `~/.shadowsocks`, and remove the need of `nc` with `-Uu` support.
 
-### Usage
+### Deployment
 
 1. Place the `mync.py` file anywhere you like
 2. `chmod +x mync.py`
 3. Run `./mync.py install`
 4. Don't forget to run `systemctl enable ss-manager`
 5. Enjoy!
+
+
+### Managing
+
+To manager `ss-server` slaves, just run `./mync.py`, and
+ - Type `p` for ping
+ - Type `a1abc` to add a slave on port `baseport+1` with password `abc`
+ - Type `d1` for deleting slave on port `baseport+1`
+ - Check code for more details.
+
+Attention: Don't move `mync.py` after step 3. Or you may need to run `install` again.
 
