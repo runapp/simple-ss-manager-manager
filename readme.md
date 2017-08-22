@@ -23,3 +23,5 @@ To manager `ss-server` slaves, just run `./mync.py`, and
 
 Attention: Don't move `mync.py` after step 3. Or you may need to run `install` again.
 
+Warning: using the remove function don't remove files in `~/.shadowsocks`. You have to remove them manually or next time the server starts those server ports will reappear!
+
