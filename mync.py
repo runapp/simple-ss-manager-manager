@@ -5,6 +5,8 @@ import readline
 import sys
 import time
 
+base_port = 2000
+
 
 def connect():
     sockfile = "/tmp/tmp.sock"
@@ -23,8 +25,16 @@ def close(client):
     os.remove(sockfile)
 
 
+def getparam(str):
+    global base_port
+    charlist = "0123456789 "
+    i = 1
+    while str[i] in charlist:
+        i += 1
+    return (int(str[1:i].strip()) + base_port, str[i:])
+
+
 def main():
-    base_port = 2000
     client = connect()
     while True:
         try:
@@ -32,14 +42,17 @@ def main():
             if y == '' or y[0] == 'p':
                 x = 'ping'
             elif y[0] == 'a':
+                port, pwd = getparam(y)
                 x = 'add: {{"server_port":{},"password":"{}"}}'.format(
-                    int(y[1]) + base_port, y[2:])
+                    port, pwd)
             elif y[0] == 'r':
-                x = 'remove: {{"server_port":{}}}'.format(
-                    int(y[1]) + base_port)
+                x = 'remove: {{"server_port":{}}}'.format(port)
+            elif y[0] == 'q':
+                break
             else:
                 continue
             client.send((x).encode('utf8'))
+            print(x)
             print(client.recv(2048).decode('utf8'))
         except KeyboardInterrupt:
             break
@@ -47,7 +60,7 @@ def main():
 
 
 def init():
-    os.system('ss-manager -s \'::\' -s 0.0.0.0 -u -m chacha20 -f /tmp/ss-manager.pid --manager-address /tmp/m.sock')
+    os.system('ss-manager -s \'::\' -s 0.0.0.0 -u -m chacha20-ietf-poly1305 -f /tmp/ss-manager.pid --manager-address /tmp/m.sock')
     time.sleep(5)
     client = connect()
     os.chdir('/root/.shadowsocks')
