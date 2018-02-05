@@ -1,7 +1,7 @@
 # simple-ss-manager-manager
 Simple wrapper for ss-manager; auto reload configure; a tiny handmake managing shell.
 
-Targeting for auto startup ss-manager as well as reloading all configurations in `~/.shadowsocks`, and remove the need of `nc` with `-Uu` support.
+Targeting for auto startup ss-manager as well as reloading all configurations in `/root/.shadowsocks`, and get rid of requirements of `nc` with `-Uu` support.
 
 ### Deployment
 
@@ -11,7 +11,6 @@ Targeting for auto startup ss-manager as well as reloading all configurations in
 4. Don't forget to run `systemctl enable ss-manager`
 5. Enjoy!
 
-
 ### Managing
 
 To manager `ss-server` slaves, just run `./mync.py`, and
@@ -19,9 +18,10 @@ To manager `ss-server` slaves, just run `./mync.py`, and
  - Type `a1abc` or `a 1 abc` to add a slave on port `baseport+1` with password `abc`
  - Type `r1` or `r 1` for deleting slave on port `baseport+1`
  - Spaces just don't matter, `a      10barfoo` also works
+ - Default port base is 2000. To change it temporarily, run `./mync.py 3000` .
  - Check code for more details
 
 Attention: Don't move `mync.py` after step 3. Or you may need to run `install` again.
 
-Warning: using the remove function don't remove files in `~/.shadowsocks`. You have to remove them manually or next time the server starts those server ports will reappear!
+Warning: using the remove function don't remove conf files in `/root/.shadowsocks`. You have to remove them manually or next time the server starts those server ports will reappear!
 
