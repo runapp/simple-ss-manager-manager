@@ -5,33 +5,36 @@ import readline
 import sys
 import time
 
+LOCAL_SOCK = "/var/run/ss-manager-temp-" + str(os.getpid()) + ".sock"
+SERVER_SOCK = "/var/run/m.sock"
+CMD_LINE = 'ss-manager -s "::" -s 0.0.0.0 -u -m aes-256-gcm -f /var/run/ss-manager.pid --manager-address ' + SERVER_SOCK
+conf_dir = '/root/.shadowsocks'
 base_port = 2000
 
 
 def connect():
-    sockfile = "/tmp/tmp.sock"
-    if os.path.exists(sockfile):
-        os.remove(sockfile)
+    if os.path.exists(LOCAL_SOCK):
+        os.remove(LOCAL_SOCK)
     client = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-    client.bind(sockfile)
-    client.connect("/tmp/m.sock")
+    client.bind(LOCAL_SOCK)
+    client.connect(SERVER_SOCK)
     client.settimeout(1)
     return client
 
 
 def close(client):
-    sockfile = "/tmp/tmp.sock"
     client.close()
-    os.remove(sockfile)
+    os.remove(LOCAL_SOCK)
 
 
-def getparam(str):
+def getparam(s: str):
     global base_port
-    charlist = "0123456789 "
+    s = s.strip()
+    charlist = "0123456789"
     i = 1
-    while str[i] in charlist:
+    while s[i] in charlist:
         i += 1
-    return (int(str[1:i].strip()) + base_port, str[i:])
+    return (int(s[1:i]) + base_port, s[i:].strip() if i < len(s) else '')
 
 
 def main():
@@ -43,9 +46,9 @@ def main():
                 x = 'ping'
             elif y[0] == 'a':
                 port, pwd = getparam(y)
-                x = 'add: {{"server_port":{},"password":"{}"}}'.format(
-                    port, pwd)
+                x = 'add: {{"server_port":{},"password":"{}"}}'.format(port, pwd)
             elif y[0] == 'r':
+                port, _ = getparam(y)
                 x = 'remove: {{"server_port":{}}}'.format(port)
             elif y[0] == 'q':
                 break
@@ -60,16 +63,20 @@ def main():
 
 
 def init():
-    os.system('ss-manager -s \'::\' -s 0.0.0.0 -u -m chacha20-ietf-poly1305 -f /tmp/ss-manager.pid --manager-address /tmp/m.sock')
-    time.sleep(5)
+    import json
+    os.system(CMD_LINE)
+    time.sleep(2)
     client = connect()
-    os.chdir('/root/.shadowsocks')
+    os.chdir(conf_dir)
     for i in os.listdir():
-        x = 'add: {}'.format(open(i).read().replace("\n", '').replace(
-            'port":"', 'port":').replace('","pass', ',"pass').replace(',}', '}'))
-        print(x)
-        client.send((x).encode('utf8'))
-        print(client.recv(2048).decode('utf8'))
+        if not i.endswith('.conf'):
+            continue
+        with open(i) as f:
+            c = json.load(f)
+            x = 'add: {{"server_port":{},"password":"{}"}}'.format(c['server_port'], c['password'])
+            print('Sending:\n%s\n' % x)
+            client.send((x).encode('utf8'))
+            print('Received:\n%s\n' % client.recv(2048).decode('utf8'))
     close(client)
 
 
@@ -98,6 +105,7 @@ if len(sys.argv) > 1:
     elif sys.argv[1] == 'install':
         install()
     else:
+        base_port = int(sys.argv[1])
         main()
 else:
     main()
