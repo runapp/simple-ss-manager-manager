@@ -32,9 +32,12 @@ def getparam(s: str):
     s = s.strip()
     charlist = "0123456789"
     i = 1
-    while s[i] in charlist:
+    while s[i] not in charlist:
         i += 1
-    return (int(s[1:i]) + base_port, s[i:].strip() if i < len(s) else '')
+    j=i+1
+    while s[j] in charlist:
+        j += 1
+    return (int(s[i:j]) + base_port, s[j:].strip() if i < len(s) else '')
 
 
 def main():
